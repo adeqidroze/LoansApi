@@ -31,5 +31,27 @@ namespace LoansApi.Test.ServiceTests
             Console.WriteLine(hash1 + "\n" + hash2);
 
         }
+
+        [TestMethod]
+        public void GenerateSalt_Success()
+        {
+            var salt = _hashService.GenerateSalt();
+            Assert.IsInstanceOfType(salt, typeof(string));
+        }
+
+        [TestMethod]
+        public void GenerateSaltedHashPassword_Fail()
+        {
+            var salt = _hashService.GenerateSalt();
+            var password = "Abgdzzsd123!";
+            var hash1 = _hashService.GenerateHash(password, salt);
+            var hash2 = _hashService.GenerateHash(password, salt+"A");
+
+            Assert.AreNotEqual(hash1, hash2);
+            Console.WriteLine(hash1 + "\n" + hash2);
+
+        }
+
+       
     }
 }

@@ -57,39 +57,29 @@ namespace LoansApi.Controllers
         [AllowAnonymous]
         [HttpPost("register")]
         public async Task<ActionResult> CreateUser([FromBody] CreateUser newUser)
-        {
-
-         
+        {      
             var userValidator = new UserValidator();
-            var validationResult = userValidator.Validate(newUser);
-            var usernameMatch =  _context.Users.Where(x => x.UserName == newUser.UserName).Any();
+            var validationResult = userValidator.Validate(newUser);      
+            if (!validationResult.IsValid)
+                return BadRequest(validationResult);
 
-            if (usernameMatch)
-                return BadRequest($"Username {newUser.UserName} already exists. Try somthing like {newUser.UserName}123 ");
+            var createdUser = await _userservice.AddUserAsync(newUser);
+            if (createdUser == null)
+                return BadRequest(new { message = $"Username {newUser.UserName} already exists. Try somthing like {newUser.UserName}123 " });
 
-            if (validationResult.IsValid)
-            {              
-                var createdUser = await _userservice.AddUserAsync(newUser);
-                var userCredentials = new UserLogin{Username = createdUser.UserName,Password = createdUser.Password};
-                var userLogin = _userservice.Login(userCredentials);
+            var userCredentials = new UserLogin{Username = createdUser.UserName,Password = createdUser.Password};
+            var userLogin = _userservice.Login(userCredentials);                                   
+             
+            return Ok(new
+            {
+                FirstName = createdUser.FirstName,
+                LastName = createdUser.LastName,
+                Age = createdUser.Age,
+                Salary = createdUser.Salary,                       
+                Tocken = _tokenService.GenerateToken(userLogin)
+            });
+            
 
-
-                if (userLogin == null)               
-                    return BadRequest(new { message = "Access denied. Wrong Username or Password." });
-                
-                var tokenString = _tokenService.GenerateToken(userLogin);
-
-                return Ok(new
-                {
-                    FirstName = createdUser.FirstName,
-                    LastName = createdUser.LastName,
-                    Age = createdUser.Age,
-                    Salary = createdUser.Salary,                       
-                    Tocken = tokenString
-                });
-            }
-
-            return BadRequest(validationResult);
         }
 
         [HttpPut("update")]
@@ -97,59 +87,47 @@ namespace LoansApi.Controllers
         {
             var currentUserId = int.Parse(User.Identity.Name);
             var userValidator = new UpdateUserValidator();
-            var validationResult = userValidator.Validate(updateUser);
             var usernameMatch = _context.Users.Where(x => x.UserName == updateUser.UserName).Any();
             var matchedUserId = _context.Users.Where(x => x.UserName == updateUser.UserName).FirstOrDefault().Id;
 
             if(_context.Users.Where(x=>x.Id == currentUserId).FirstOrDefault().IsBlocked == true)
-                return BadRequest("User Blocked!");
+                return BadRequest(new { message = "User Blocked!" });
 
-            if (usernameMatch && matchedUserId != currentUserId)
-                return BadRequest($"Username {updateUser.UserName} already exists. Try somthing like {updateUser.UserName}123 ");
+            var validationResult = userValidator.Validate(updateUser);
+            if (!validationResult.IsValid)
+                return BadRequest(validationResult);
+           
+            var changedUser = await _userservice.UpdateUserAsync(updateUser, currentUserId);
+            if (changedUser == null)
+                return BadRequest(new { message = $"Username {updateUser.UserName} already exists. Try somthing like {updateUser.UserName}123 " });
 
-            if (validationResult.IsValid)
+            var userCredentials = new UserLogin { Username = changedUser.UserName, Password = changedUser.Password };
+            var userLogin = _userservice.Login(userCredentials);
+
+            if (userLogin == null)
+                return BadRequest(new { message = "Access denied. Wrong Username or Password." });
+
+            return Ok(new
             {
-                var changedUser = await _userservice.UpdateUserAsync(updateUser, currentUserId);
-                var userCredentials = new UserLogin { Username = changedUser.UserName, Password = changedUser.Password };
-                var userLogin = _userservice.Login(userCredentials);
-
-                if (userLogin == null)
-                    return BadRequest(new { message = "Access denied. Wrong Username or Password." });
-
-                var tokenString = _tokenService.GenerateToken(userLogin);
-
-                return Ok(new
-                {
-                    FirstName = changedUser.FirstName,
-                    LastName = changedUser.LastName,
-                    Age = changedUser.Age,
-                    Salary = changedUser.Salary,
-                    Tocken = tokenString
-                });
-            }
-
-            return BadRequest(validationResult);
+                FirstName = changedUser.FirstName,
+                LastName = changedUser.LastName,
+                Age = changedUser.Age,
+                Salary = changedUser.Salary,
+                Tocken = _tokenService.GenerateToken(userLogin)
+            });
         }
-
 
         [AllowAnonymous]
         [HttpPost("login")]
         public IActionResult Login([FromBody] UserLogin user)
         {
-           /* _logger.LogDebug("This is a debug message");
-            _logger.LogInformation("This is an info message");
-            _logger.LogWarning("This is a warning message ");
-            _logger.LogError(new Exception(), "This is an error message");*/
-
             var userLogin = _userservice.Login(user);
-
             if (userLogin == null)          
                 return BadRequest(new { message = "Access denied. Wrong Username or Password." });
 
             if (_context.Users.Where(x => x.UserName == user.Username).FirstOrDefault().IsBlocked == true)
-                return BadRequest("User Blocked!");
+                return BadRequest(new { message = "User Blocked!" });
 
-            var tokenString = _tokenService.GenerateToken(userLogin);
             var myUser = _context.Users.Where(x => x.UserName == userLogin.Username).FirstOrDefault();
 
             return Ok(new
@@ -158,7 +136,7 @@ namespace LoansApi.Controllers
                 LastName = myUser.LastName,
                 Age = myUser.Age,
                 Salary = myUser.Salary,
-                Tocken = tokenString
+                Tocken = _tokenService.GenerateToken(userLogin)
             });
         }
 
@@ -168,15 +146,13 @@ namespace LoansApi.Controllers
         {
             var currentUserId = int.Parse(User.Identity.Name);
             var currUser = _context.Users.Where(x=> x.Id == currentUserId).FirstOrDefault();
+            if (currUser.UserRole != Role.Admin || currUser.UserRole != Role.Assistant)
+                return Forbid("User doesn't have permissions.");
 
-            if (currUser.UserRole != Role.Admin)
-                return Forbid();
-
-            if (_context.Users.Where(x => x.Id == currentUserId).FirstOrDefault().IsBlocked == true)
-                return BadRequest("User Blocked!");
+            if (currUser.IsBlocked == true)
+                return BadRequest(new { message = "User Blocked!" });
 
             return Ok(_userservice.GetAll());
-
         }
 
         [HttpGet("{id}")]
@@ -184,17 +160,16 @@ namespace LoansApi.Controllers
         {
             var currentUserId = int.Parse(User.Identity.Name);
             var currUser = _context.Users.Where(x => x.Id == currentUserId).FirstOrDefault();
-
-            if (currentUserId != id && currUser.UserRole != Role.Admin)
-                return Forbid();
+            if (currentUserId != id && (currUser.UserRole != Role.Admin || currUser.UserRole != Role.Assistant))
+                return Forbid("User doesn't have permissions.");
 
             if (currUser.IsBlocked == true)
-                return BadRequest("User Blocked!");
+                return BadRequest(new { message = "User Blocked!" });
 
-            if (!_context.Users.Where(x => x.Id == id).Any())
-                return NotFound();
+            var myUser = _userservice.GetById(id);
+            if (myUser ==null)
+                return NotFound(new { message = $"User with id {id} doesn't exist." });
 
-            var myUser = _userservice.GetById(id);         
             return Ok(myUser);
 
         }
@@ -206,31 +181,27 @@ namespace LoansApi.Controllers
             var errorMessage = "";
             var currentUserId = int.Parse(User.Identity.Name);
             var currentUser = _context.Users.Where(x=>x.Id == currentUserId).FirstOrDefault();
-
             if (currentUser.IsBlocked == true)
-                return BadRequest("User Blocked!");
+                return BadRequest(new {message = "User Blocked!"});
 
             var loanValidator = new LoansValidator();
             var validationResult = loanValidator.Validate(newLoan);
+            if (!validationResult.IsValid)
+                return BadRequest(validationResult);
 
             if (_loanLogic.IsLoanPossible(currentUser.Salary, newLoan,out errorMessage) == false)
                 return BadRequest(errorMessage);
-
-            if (validationResult.IsValid)
+                      
+            var createdLoan = await _userservice.CreateLoan(newLoan, _loanLogic.GetLoanType(newLoan.Amount), currentUserId);            
+            return Ok(new
             {
-                var createdLoan = await _userservice.CreateLoan(newLoan, _loanLogic.GetLoanType(newLoan.Amount), currentUserId);
-             
-                return Ok(new
-                {
-                    LoanIdentityNumber = createdLoan.LoanIdentityNumber,
-                    Amount = createdLoan.Amount,
-                    Currency = createdLoan.Currency,
-                    LoanPeriodInMonths = createdLoan.LoanPeriod,
-                    Status = createdLoan.Status
-                });
-            }
-
-            return BadRequest(validationResult);
+                LoanIdentityNumber = createdLoan.LoanIdentityNumber,
+                LoanType = _loanLogic.GetLoanType(newLoan.Amount),
+                Amount = createdLoan.Amount,
+                Currency = createdLoan.Currency,
+                LoanPeriodInMonths = createdLoan.LoanPeriod,
+                Status = createdLoan.Status
+            });            
         }
 
         [HttpPut("loan/update")]
@@ -239,34 +210,31 @@ namespace LoansApi.Controllers
             var errorMessage = "";
             var currentUserId = int.Parse(User.Identity.Name);
             var currentUser = _context.Users.Where(x => x.Id == currentUserId).FirstOrDefault();
-
             if (currentUser.IsBlocked == true)
-                return BadRequest("User Blocked!");
+                return BadRequest(new {message = "User Blocked!" });
 
             var loanValidator = new LoansValidator();
             var validationResult = loanValidator.Validate(updateLoan);
+            if (!validationResult.IsValid)
+                return BadRequest(validationResult);
 
             if (_loanLogic.IsLoanPossible(currentUser.Salary, updateLoan, out errorMessage) == false)
                 return BadRequest(errorMessage);
+           
+            var createdLoan = await _userservice.UpdateLoan(updateLoan, _loanLogic.GetLoanType(updateLoan.Amount), loanIdentityNumber);              
+            if (createdLoan == null)
+                return BadRequest(new {message = $"Loan with number {loanIdentityNumber} can't be edited. Status is not PreApplication." });
 
-            if (validationResult.IsValid)
+            return Ok(new
             {
-                var createdLoan = await _userservice.UpdateLoan(updateLoan, _loanLogic.GetLoanType(updateLoan.Amount), loanIdentityNumber);
-               
-                if (createdLoan == null)
-                    return BadRequest($"Loan with number {loanIdentityNumber} can't be edited. Status not PreApplication.");
+                LoanIdentityNumber = createdLoan.LoanIdentityNumber,
+                Amount = createdLoan.Amount,
+                Currency = createdLoan.Currency,
+                LoanPeriodInMonths = createdLoan.LoanPeriod,
+                Status = createdLoan.Status
+             });
+            
 
-                return Ok(new
-                {
-                    LoanIdentityNumber = createdLoan.LoanIdentityNumber,
-                    Amount = createdLoan.Amount,
-                    Currency = createdLoan.Currency,
-                    LoanPeriodInMonths = createdLoan.LoanPeriod,
-                    Status = createdLoan.Status
-            });
-            }
-
-            return BadRequest(validationResult);
         }
 
         [HttpGet("GetLoans")]
@@ -274,9 +242,8 @@ namespace LoansApi.Controllers
         {
             var currentUserId = int.Parse(User.Identity.Name);
             var currentUser = _context.Users.Where(x => x.Id == currentUserId).FirstOrDefault();
-
             if (currentUser.IsBlocked == true)
-                return BadRequest("User Blocked!");
+                return BadRequest(new {message = "User Blocked!" });
 
             var myUser = _userservice.GetUserLoans(currentUserId);
             return Ok(myUser);
