@@ -25,8 +25,7 @@ namespace LoansApi.Configurations
                 UserLoan>().ReverseMap();
             CreateMap<Loan,
              GetLoans>().ReverseMap();
-            CreateMap<Loan,
-             AssistantCreateLoan>().ReverseMap();
+            
             CreateMap<Loan,
              AssistantUpdateLoanFor>().ReverseMap();
         }

@@ -147,7 +147,7 @@ namespace LoansApi.Controllers
             var currentUserId = int.Parse(User.Identity.Name);
             var currUser = _context.Users.Where(x=> x.Id == currentUserId).FirstOrDefault();
             if (currUser.UserRole != Role.Admin || currUser.UserRole != Role.Assistant)
-                return Forbid("User doesn't have permissions.");
+                return Forbid();
 
             if (currUser.IsBlocked == true)
                 return BadRequest(new { message = "User Blocked!" });
@@ -161,7 +161,7 @@ namespace LoansApi.Controllers
             var currentUserId = int.Parse(User.Identity.Name);
             var currUser = _context.Users.Where(x => x.Id == currentUserId).FirstOrDefault();
             if (currentUserId != id && (currUser.UserRole != Role.Admin || currUser.UserRole != Role.Assistant))
-                return Forbid("User doesn't have permissions.");
+                return Forbid();
 
             if (currUser.IsBlocked == true)
                 return BadRequest(new { message = "User Blocked!" });

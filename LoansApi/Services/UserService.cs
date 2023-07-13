@@ -36,9 +36,10 @@ namespace LoansApi.Services
 
         public async Task<CreateUser> AddUserAsync(CreateUser model)
         {
-            var userMatch = _context.Users.Where(x => x.UserName == model.UserName);
 
-            if (userMatch.Any())
+            var userMatch = _context.Users.Where(x => x.UserName == model.UserName).FirstOrDefault();
+
+            if (userMatch != null)
                 return null;
 
             var user = new User();

@@ -35,7 +35,10 @@ namespace LoansApi.Controllers
             var currentUser = _context.Users.Where(x => x.Id == currentUserId).FirstOrDefault();
 
             if (currentUser.UserRole != Role.Assistant || currentUser.UserRole != Role.Admin)
-                return Forbid("Only System Users can Use This Method.");
+                return Forbid();
+
+            if (currentUser.Id == userId)
+                return BadRequest(new { message = "User can't update itself!" });
 
             var userValidator = new UserBlockedAndRolesValidator();
             var validationResult = userValidator.Validate(updateUser);
@@ -46,7 +49,7 @@ namespace LoansApi.Controllers
                 return BadRequest("User Blocked!");
 
             if (currentUser.UserRole != Role.Admin && matchedUser.UserRole == Role.Admin)
-                return Forbid("Only Admin User dan edit Admins.");
+                return Forbid("Only Admin User can edit Admins.");
          
             if (!usernameId)
                 return NotFound($"User with Id {userId} doesn't exist in Database.");
@@ -75,7 +78,10 @@ namespace LoansApi.Controllers
         {
             var currentUserId = int.Parse(User.Identity.Name);
             var currentUser = _context.Users.Where(x => x.Id == currentUserId).FirstOrDefault();
-            
+
+            if (currentUser.UserRole != Role.Admin || currentUser.UserRole != Role.Assistant)
+                return Forbid();
+
             if (currentUser.IsBlocked == true)
                 return BadRequest("User Blocked!");
 
@@ -94,6 +100,48 @@ namespace LoansApi.Controllers
             }
 
             return BadRequest(validationResult);
+        }
+
+        [HttpDelete("Delete/user/{id}")]
+        public async Task<ActionResult> DeleteUser(int userId)
+        {
+            var currentUserId = int.Parse(User.Identity.Name);
+            var currentUser = _context.Users.Where(x => x.Id == currentUserId).FirstOrDefault();
+
+            if (currentUser.UserRole != Role.Admin || currentUser.UserRole != Role.Assistant)
+                return Forbid();
+
+            if (currentUser.IsBlocked == true)
+                return BadRequest("User Blocked!");
+
+            if (currentUser.Id == userId)
+                return BadRequest(new { message = "User can't delete itself!" });
+       
+            var deletedUser = await _assistant.DeleteUser(userId);
+            if (deletedUser == null)
+                return NotFound($"User with id {userId} not found in database.");
+
+            return Ok(deletedUser);
+        }
+
+
+        [HttpDelete("Delete/Loan")]
+        public async Task<ActionResult> DeleteLoan(string loanIdentificationNumber)
+        {
+            var currentUserId = int.Parse(User.Identity.Name);
+            var currentUser = _context.Users.Where(x => x.Id == currentUserId).FirstOrDefault();
+
+            if (currentUser.UserRole != Role.Admin || currentUser.UserRole != Role.Assistant)
+                return Forbid();
+
+            if (currentUser.IsBlocked == true)
+                return BadRequest("User Blocked!");
+
+            var deletedLoan = await _assistant.DeleteLoan(loanIdentificationNumber);
+            if (deletedLoan == null)
+                return NotFound($"Loan with identification Number {loanIdentificationNumber} not found in database.");
+
+            return Ok(deletedLoan);
         }
 
     }

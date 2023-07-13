@@ -52,11 +52,11 @@ namespace LoansApi.Test.ValidationTests
         [TestMethod]
         public void Should_Have_Error_When_Length_More_Than_Allowed()
         {
-            var model = new CreateUser { 
+            var model = new CreateUser {
                 FirstName = "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz",
                 LastName = "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz",
                 UserName = "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz",
-                Password = "Zpp111111111111111#" 
+                Password = "Zpp111111111111111#"
             };
             var result = validator.TestValidate(model);
 
@@ -71,28 +71,24 @@ namespace LoansApi.Test.ValidationTests
         }
 
         [TestMethod]
-        public  void Should_Have_Error_Password_Validations_Wrong_ALL()
+        [DataRow(null)]
+        [DataRow("z")]
+        [DataRow("123456789aA@dfghjklzxcvbn")]
+        [DataRow("123#asdfg")]
+        [DataRow("123#A12313")]
+        [DataRow("AAAA#asdfg")]
+        [DataRow("Abgdsdsds2312")]
+        public void Should_Have_Error_Password_Validations_Wrong_ALL(string password)
         {
             var model = new CreateUser
             {
-                Password = null
+                Password = password
             };
-            var result =   validator.TestValidate(model);
+            var result = validator.TestValidate(model).IsValid;
+            NUnit.Framework.Assert.IsFalse(result);
 
-            //result.ShouldHaveValidationErrorFor(user => user.Password).WithErrorMessage("Password can't be null.");
-
-            result.ShouldHaveValidationErrorFor(user => user.Password).WithErrorMessage("Password should be at least 8 characters.");
-
-            result.ShouldHaveValidationErrorFor(user => user.Password).WithErrorMessage("Password should not be more than 18 characters.");
-
-            result.ShouldHaveValidationErrorFor(user => user.Password).WithErrorMessage("Your password must contain at least one uppercase letter.");
-
-            result.ShouldHaveValidationErrorFor(user => user.Password).WithErrorMessage("Your password must contain at least one lowercase letter.");
-
-            result.ShouldHaveValidationErrorFor(user => user.Password).WithErrorMessage("Your password must contain at least one number.");
-
-            result.ShouldHaveValidationErrorFor(user => user.Password).WithErrorMessage("Your password must contain at least one (!?@#$%^ *.).");
-
+            //result.ShouldHaveValidationErrorFor(user => user.Password);
+          
         }
 
 
@@ -129,6 +125,23 @@ namespace LoansApi.Test.ValidationTests
 
         }
 
+        [TestMethod]
+        public void Positive_Case_All()
+        {
+            var model = new CreateUser
+            {
+                FirstName = "nika",
+                LastName = "nika",
+                UserName = "nikakura",
+                Age = 19,
+                Salary = 1000,
+                Password = "Nikakura123$"
+            };
+            var result = validator.TestValidate(model);
+
+            result.ShouldNotHaveAnyValidationErrors();
+          
+        }
         /* [TestMethod]
          public void Should_Have_Error_When_Length_Less_Than_8()
          {

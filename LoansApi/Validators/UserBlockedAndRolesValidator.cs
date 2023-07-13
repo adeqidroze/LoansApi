@@ -18,8 +18,6 @@ namespace LoansApi.Validators
                   .WithMessage("LastName can't be null.")
                   .Must(x => x == Role.Guest || x == Role.User || x == Role.Assistant || x == Role.Admin)
                   .WithMessage("Role shoould be in values:Guest,User,Assistant,Admin");
-
-
          
         }
     }

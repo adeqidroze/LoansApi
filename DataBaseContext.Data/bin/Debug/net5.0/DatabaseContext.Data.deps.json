@@ -6,7 +6,7 @@
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v5.0": {
-      "DatabaseContext.Data/1.0.0": {
+      "DataBaseContext.Data/1.0.0": {
         "dependencies": {
           "Database.Domain": "1.0.0",
           "Microsoft.EntityFrameworkCore": "5.0.0",
@@ -15,7 +15,7 @@
           "Microsoft.EntityFrameworkCore.Tools": "5.0.0"
         },
         "runtime": {
-          "DatabaseContext.Data.dll": {}
+          "DataBaseContext.Data.dll": {}
         }
       },
       "Humanizer.Core/2.8.26": {
@@ -990,7 +990,7 @@
     }
   },
   "libraries": {
-    "DatabaseContext.Data/1.0.0": {
+    "DataBaseContext.Data/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

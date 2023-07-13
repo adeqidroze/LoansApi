@@ -9,12 +9,16 @@ using System.Threading.Tasks;
 
 namespace DataBaseContext.Data
 {
+  
     public class LoanDatabaseContext : DbContext
     {
         public LoanDatabaseContext(DbContextOptions<LoanDatabaseContext> options) : base(options)
         {
         }
 
+        public LoanDatabaseContext()
+        {
+        }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);

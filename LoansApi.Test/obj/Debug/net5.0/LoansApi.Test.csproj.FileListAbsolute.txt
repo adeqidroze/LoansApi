@@ -167,3 +167,5 @@ C:\Users\User\Source\Repos\adeqidroze\FinalProject\LoansApi.Test\bin\Debug\net5.
 C:\Users\User\Source\Repos\adeqidroze\FinalProject\LoansApi.Test\bin\Debug\net5.0\Microsoft.AspNetCore.Metadata.dll
 C:\Users\User\Source\Repos\adeqidroze\FinalProject\LoansApi.Test\bin\Debug\net5.0\Microsoft.Extensions.DependencyInjection.dll
 C:\Users\User\Source\Repos\adeqidroze\FinalProject\LoansApi.Test\bin\Debug\net5.0\NLog.Database.dll
+C:\Users\User\Source\Repos\adeqidroze\FinalProject\LoansApi.Test\bin\Debug\net5.0\Castle.Core.dll
+C:\Users\User\Source\Repos\adeqidroze\FinalProject\LoansApi.Test\bin\Debug\net5.0\Moq.dll

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Database.Domain;
 using DataBaseContext.Data;
 using LoansApi.DTOs;
 using System.Linq;
@@ -10,6 +11,8 @@ namespace LoansApi.Services
     {
         Task<GetUser> BlockOrRoleChange(BlockOrRoleChangeUser model, int id);
         Task<AssistantUpdateLoanFor> UpdateUserLoans(AssistantUpdateLoanFor model);
+        Task<User>  DeleteUser(int id);
+        Task<Loan> DeleteLoan(string loanIdentificationNum);
     }
     public class AssistantService : IAssistantInterface
     {
@@ -42,9 +45,38 @@ namespace LoansApi.Services
             _mapper.Map(model, loan);
             _context.Loans.Update(loan.FirstOrDefault());
             await _context.SaveChangesAsync();
-            var result = _mapper.Map<AssistantUpdateLoanFor>(loan);
+            var result = _mapper.Map<AssistantUpdateLoanFor>(loan.FirstOrDefault());
 
             return result;
+        }
+
+        public async Task<User> DeleteUser(int id)
+        {
+            var user = _context.Users.Where(x => x.Id == id);
+            if (!user.Any())
+                return null;
+
+            var loans = _context.Loans.Where(x=>x.UserId ==id);
+            if (loans.Any())
+            {
+                foreach (var loan in loans)             
+                    _context.Loans.Remove(loan);                
+            }
+
+            _context.Users.Remove(user.FirstOrDefault());
+            await _context.SaveChangesAsync();
+
+            return user.FirstOrDefault();
+        }
+        public async Task<Loan> DeleteLoan(string loanIdentificationNum)
+        {
+            var loan = _context.Loans.Where(x => x.LoanIdentityNumber == loanIdentificationNum);
+            if (!loan.Any())
+                return null;
+
+            _context.Loans.Remove(loan.FirstOrDefault());
+            await _context.SaveChangesAsync();
+            return loan.FirstOrDefault();
         }
     }
 }
