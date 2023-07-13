@@ -36,6 +36,11 @@ namespace LoansApi.Services
 
         public async Task<CreateUser> AddUserAsync(CreateUser model)
         {
+            var userMatch = _context.Users.Where(x => x.UserName == model.UserName);
+
+            if (userMatch.Any())
+                return null;
+
             var user = new User();
             user.Password_salt = _hashService.GenerateSalt();
             model.Password = _hashService.GenerateHash(model.Password, user.Password_salt);
@@ -48,7 +53,12 @@ namespace LoansApi.Services
         }
         public async Task<UpdateUser> UpdateUserAsync(UpdateUser model, int id)
         {
-            var user = _context.Users.Where(x=>x.Id == id).FirstOrDefault();
+            var userMatch = _context.Users.Where(x => x.UserName == model.UserName);
+            var user = _context.Users.Where(x => x.Id == id).FirstOrDefault();
+    
+            if (userMatch.Any() && user.Id != userMatch.FirstOrDefault().Id)
+                return null;
+
             user.Password_salt = _hashService.GenerateSalt();
             model.Password = _hashService.GenerateHash(model.Password, user.Password_salt);
             _mapper.Map(model, user);
@@ -92,9 +102,11 @@ namespace LoansApi.Services
 
         public GetUser GetById(int id)
         {
-            var myUser = _context.Users.Where(x => x.Id == id).FirstOrDefault();
-            
-            return _mapper.Map<GetUser>(myUser);
+            var myUser = _context.Users.Where(x => x.Id == id);
+            if (!myUser.Any())
+                return null;
+
+            return _mapper.Map<GetUser>(myUser.FirstOrDefault());
         }
         public GetUser[] GetAll()
         {
