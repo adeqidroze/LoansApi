@@ -1,0 +1,12 @@
+C:\Users\User\Source\Repos\adeqidroze\FinalProject\Database.Domain\bin\Debug\net5.0\Database.Domain.deps.json
+C:\Users\User\Source\Repos\adeqidroze\FinalProject\Database.Domain\bin\Debug\net5.0\Database.Domain.dll
+C:\Users\User\Source\Repos\adeqidroze\FinalProject\Database.Domain\bin\Debug\net5.0\ref\Database.Domain.dll
+C:\Users\User\Source\Repos\adeqidroze\FinalProject\Database.Domain\bin\Debug\net5.0\Database.Domain.pdb
+C:\Users\User\Source\Repos\adeqidroze\FinalProject\Database.Domain\obj\Debug\net5.0\Database.Domain.csproj.AssemblyReference.cache
+C:\Users\User\Source\Repos\adeqidroze\FinalProject\Database.Domain\obj\Debug\net5.0\Database.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\User\Source\Repos\adeqidroze\FinalProject\Database.Domain\obj\Debug\net5.0\Database.Domain.AssemblyInfoInputs.cache
+C:\Users\User\Source\Repos\adeqidroze\FinalProject\Database.Domain\obj\Debug\net5.0\Database.Domain.AssemblyInfo.cs
+C:\Users\User\Source\Repos\adeqidroze\FinalProject\Database.Domain\obj\Debug\net5.0\Database.Domain.csproj.CoreCompileInputs.cache
+C:\Users\User\Source\Repos\adeqidroze\FinalProject\Database.Domain\obj\Debug\net5.0\Database.Domain.dll
+C:\Users\User\Source\Repos\adeqidroze\FinalProject\Database.Domain\obj\Debug\net5.0\ref\Database.Domain.dll
+C:\Users\User\Source\Repos\adeqidroze\FinalProject\Database.Domain\obj\Debug\net5.0\Database.Domain.pdb

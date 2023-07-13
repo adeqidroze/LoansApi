@@ -1,0 +1,31 @@
+{
+  "Version": 1,
+  "ProjectMap": {
+    "e82e7426-c73a-4646-94f7-a4515ac4d76f": {
+      "ProjectGuid": "e82e7426-c73a-4646-94f7-a4515ac4d76f",
+      "DisplayName": "Database.Domain",
+      "ColorIndex": 0
+    },
+    "e14b74b4-6091-4dba-aa3a-43b2a1001053": {
+      "ProjectGuid": "e14b74b4-6091-4dba-aa3a-43b2a1001053",
+      "DisplayName": "DataBaseContext.Data",
+      "ColorIndex": 1
+    },
+    "e322b438-e040-458b-9978-3ee055e268f6": {
+      "ProjectGuid": "e322b438-e040-458b-9978-3ee055e268f6",
+      "DisplayName": "LoansApi",
+      "ColorIndex": 2
+    },
+    "a2fe74e1-b743-11d0-ae1a-00a0c90fffc3": {
+      "ProjectGuid": "a2fe74e1-b743-11d0-ae1a-00a0c90fffc3",
+      "DisplayName": "Miscellaneous Files",
+      "ColorIndex": -1
+    },
+    "0ef3b834-6868-40e8-9f46-e212bcea0418": {
+      "ProjectGuid": "0ef3b834-6868-40e8-9f46-e212bcea0418",
+      "DisplayName": "LoansApi.Test",
+      "ColorIndex": 3
+    }
+  },
+  "NextColorIndex": 4
+}
